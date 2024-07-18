@@ -1,5 +1,5 @@
 import express from 'express';
-import { StartTimer, GetElapsedTimeInSeconds } from './timer';
+import { StartTimer, GetElapsedTimeInSeconds } from './timer.js';
 
 const app = express();
 app.use(express.json());
@@ -17,6 +17,7 @@ app.post('/StartTimer', async (req, res) => {
             await StartTimer(AgentId);
             res.status(200).send('Timer started');
         } catch (error) {
+            console.log(`error: ${error}`);
             res.status(500).send('An error occurred while starting the timer');
         }
     } else {

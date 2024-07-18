@@ -1,11 +1,11 @@
-const redis = require('redis');
+import redis from "redis";
 const client = redis.createClient();
 
 const initRedisClient = async () => {
     if( client.isReady ) return;
 
     await client.connect();
-    this.redisClient.on('error', (err) => console.log('Redis Client Error', err));
+    client.on('error', (err) => console.log('Redis Client Error', err));
     return;
 }
 
@@ -27,17 +27,14 @@ export const GetElapsedTimeInSeconds = async (AgentId) => {
     if (!client.isReady) {
         await initRedisClient();
     }
-    client.get(`/AgentTimers/${AgentId}`, (err, startTime) => {
-        if (err) {
-            console.error('Error fetching timer from Redis:', err);
-            return;
-        }
-        if (startTime) {
-            const currentTime = new Date().toISOString();
-            const elapsedTime = (new Date(currentTime) - new Date(startTime)) / 1000;
-            console.log(`Elapsed time for Agent ${AgentId} is ${elapsedTime} seconds.`);
-        } else {
-            console.log(`No timer found for Agent ${AgentId}.`);
-        }
-    });
+    const startTime = await client.get(`/AgentTimers/${AgentId}`);
+    if (startTime) {
+        const currentTime = new Date().toISOString();
+        const elapsedTime = (new Date(currentTime) - new Date(startTime)) / 1000;
+        console.log(`Elapsed time for Agent ${AgentId} is ${elapsedTime} seconds.`);
+        return elapsedTime;
+    } else {
+        console.log(`No timer found for Agent ${AgentId}.`);
+        return "Sorry the time isn't being kept track of.";
+    }
 };
