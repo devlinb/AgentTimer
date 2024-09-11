@@ -14,6 +14,10 @@ export const StartTimer = async (AgentId) => {
         await initRedisClient();
     }
     const currentTime = new Date().toISOString();
+    if (typeof AgentId !== 'string' || !/^[a-zA-Z0-9-]+$/.test(AgentId) || AgentId.length >= 32) {
+        console.error(`Invalid agent id: ${AgentId}`);
+        return;
+    }
     client.set(`/AgentTimers/${AgentId}`, currentTime, (err) => {
         if (err) {
             console.error('Error setting timer in Redis:', err);
@@ -27,6 +31,12 @@ export const GetElapsedTimeInSeconds = async (AgentId) => {
     if (!client.isReady) {
         await initRedisClient();
     }
+
+    if (typeof AgentId !== 'string' || !/^[a-zA-Z0-9-]+$/.test(AgentId) || AgentId.length >= 32) {
+        console.error(`Invalid agent id: ${AgentId}`);
+        return "Invalid agent id";
+    }
+
     const startTime = await client.get(`/AgentTimers/${AgentId}`);
     if (startTime) {
         const currentTime = new Date().toISOString();
